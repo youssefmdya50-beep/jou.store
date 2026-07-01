@@ -1,0 +1,674 @@
+﻿﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>جو ستور | متجر خدمات رقمية</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --fg: #ffffff;
+      --muted: rgba(255,255,255,0.76);
+      --line: rgba(255,255,255,0.16);
+      --card: rgba(255,255,255,0.06);
+      --shadow: 0 16px 40px rgba(255,255,255,0.08);
+      --max: 1220px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    /* Badge UI: always visible (via JS class), no display none */
+
+    /* Force-hide badge when not needed */
+    @media (max-width: 768px) {
+      .badge { left: 6px; top: 50%; padding: 8px 10px; font-size: 11px; white-space: normal; border-radius: 999px; }
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      background: var(--bg); 
+      color: var(--fg);
+      direction: rtl;
+      line-height: 1.7;
+      overflow-x: hidden;
+      padding-bottom: 180px;
+    }
+    img { display: block; width: 100%; height: auto; }
+    button, input { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+    header {
+      position: sticky; top: 0; z-index: 1800;
+      background: rgba(0,0,0,0.84); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line);
+    }
+    .inner {
+      max-width: var(--max); margin: 0 auto; padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 180px; }
+    .brand-mark {
+      width: 46px; height: 46px; border-radius: 50%; overflow: hidden; border: 1px solid var(--line);
+      display: grid; place-items: center; background: rgba(255,255,255,0.08);
+    }
+    .brand-mark img { width: 100%; height: 100%; object-fit: cover; }
+    .brand-name { font-weight: 900; font-size: 1rem; }
+    .nav-links { flex: 1; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      border: 1px solid var(--line); background: transparent; color: var(--fg);
+      padding: 10px 12px; border-radius: 999px; cursor: pointer; font-weight: 800; white-space: nowrap;
+      transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+    .nav-btn:hover, .nav-btn.active { background: var(--fg); color: var(--bg); transform: translateY(-1px); }
+    .search-box {
+      width: min(100%, 430px); display: flex; align-items: center; gap: 8px; border: 1px solid var(--line);
+      border-radius: 999px; padding: 10px 14px; background: rgba(255,255,255,0.06); backdrop-filter: blur(10px);
+    }
+    .search-box input { flex: 1; border: 0; background: transparent; outline: none; color: var(--fg); }
+    .search-box input::placeholder { color: rgba(255,255,255,0.72); }
+    .container { max-width: var(--max); margin: 0 auto; padding: 24px 16px 0; }
+    .hero {
+      padding: 28px 18px 20px; text-align: center; border-radius: 26px; border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      backdrop-filter: blur(16px); box-shadow: var(--shadow); margin-bottom: 20px;
+    }
+    .hero-title {
+      font-size: clamp(26px, 4.8vw, 42px); font-weight: 900; line-height: 1.4; margin-bottom: 16px; white-space: pre-line;
+    }
+    .stats-grid { difsplay: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .stat-card {
+      border-radius: 18px; border: 1px solid var(--line); background: rgba(255,255,255,0.05);
+      padding: 14px 12px; backdrop-filter: blur(8px); min-height: 92px; display: flex; flex-direction: column; justify-content: center; gap: 4px;
+    }
+    .stat-icon { font-size: 1.2rem; }
+    .stat-value { font-size: 1.06rem; font-weight: 900; }
+    .stat-label { color: var(--muted); font-size: 0.92rem; }
+    .results { margin-bottom: 14px; display: none; padding: 10px 12px; border-radius: 16px; border: 1px dashed var(--line); color: var(--muted); }
+    .section-block {
+      border-radius: 24px; overflow: hidden; border: 1px solid var(--line); background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(16px); box-shadow: var(--shadow); margin-bottom: 20px;
+    }
+    .section-cover { height: 180px; overflow: hidden; border-bottom: 1px solid var(--line); }
+    .section-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .section-body { padding: 16px; }
+    .section-title { font-size: 1.1rem; font-weight: 900; margin-bottom: 12px; }
+    .products-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .product-card {
+      display: flex; flex-direction: column; border-radius: 20px; overflow: hidden; border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06); backdrop-filter: blur(14px); min-height: 408px; transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .product-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.3); }
+    .product-media { height: 190px; overflow: hidden; border-bottom: 1px solid var(--line); }
+    .product-media img { width: 100%; height: 100%; object-fit: cover; }
+    .product-content { padding: 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .product-title { font-weight: 900; font-size: 1rem; min-height: 46px; display: flex; align-items: center; justify-content: center; text-align: center; }
+    .product-price { text-align: center; font-weight: 900; }
+    .product-desc { text-align: center; color: var(--muted); font-size: 0.93rem; min-height: 48px; }
+    .order-btn {
+      margin-top: auto; border: 1px solid var(--line); background: var(--fg); color: var(--bg); padding: 12px 14px;
+      border-radius: 999px; cursor: pointer; font-weight: 900; transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+    .order-btn:hover { transform: scale(1.02); background: var(--bg); color: var(--fg); }
+    .fab-cart {
+      position: fixed; bottom: 20px; right: 20px; width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--line);
+      background: rgba(0,0,0,0.92); color: var(--fg); cursor: pointer; z-index: 2200; font-size: 24px; box-shadow: var(--shadow);
+    }
+    .cart-drawer {
+      position: fixed; bottom: 20px; right: 20px; width: min(94vw, 440px); max-height: 82vh; overflow: auto; border-radius: 24px;
+      border: 1px solid var(--line); background: rgba(0,0,0,0.96); backdrop-filter: blur(20px); padding: 16px;
+      transform: translateY(120%); transition: transform 0.22s ease; z-index: 2100; box-shadow: var(--shadow);
+    }
+    .cart-drawer.open { transform: translateY(0); }
+    .cart-title { text-align: center; font-weight: 900; margin-bottom: 10px; }
+    .cart-group { border: 1px solid var(--line); border-radius: 16px; padding: 10px; margin-bottom: 10px; }
+    .cart-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .cart-item:last-child { border-bottom: 0; }
+    .cart-name { font-weight: 900; }
+    .cart-meta { color: var(--muted); font-size: 0.92rem; margin-top: 3px; }
+    .qty-controls { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 8px; }
+    .qty-btn, .remove-btn, .checkout-btn { border: 1px solid var(--line); background: transparent; color: var(--fg); border-radius: 999px; cursor: pointer; padding: 8px 10px; font-weight: 800; }
+    .checkout-btn { width: 100%; margin-top: 8px; background: var(--fg); color: var(--bg); }
+    .checkout-btn:hover { background: var(--bg); color: var(--fg); }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none; z-index: 2600; padding: 16px; }
+    .modal.open { display: block; }
+    .modal-card { max-width: 760px; margin: 4vh auto 0; background: #ffffff; color: #000000; border-radius: 24px; padding: 16px; max-height: 90vh; overflow: auto; border: 1px solid rgba(0,0,0,0.12); }
+    .modal-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .modal-title { font-size: 1.1rem; font-weight: 900; }
+    .close-btn { width: 42px; height: 42px; border: 1px solid #000; border-radius: 50%; background: #000; color: #fff; cursor: pointer; font-size: 22px; }
+    .modal-media { height: 240px; border-radius: 18px; overflow: hidden; border: 1px solid rgba(0,0,0,0.12); }
+    .modal-media img { width: 100%; height: 100%; object-fit: cover; }
+    .modal-desc { margin-top: 12px; font-weight: 700; }
+    .modal-price { margin-top: 10px; font-weight: 900; text-align: center; font-size: 1rem; }
+    .modal-add { width: 100%; margin-top: 12px; border: 0; border-radius: 999px; background: #000; color: #fff; padding: 12px 14px; cursor: pointer; font-weight: 900; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(12px); background: rgba(255,255,255,0.12); color: var(--fg); border: 1px solid var(--line); padding: 10px 14px; border-radius: 999px; opacity: 0; pointer-events: none; transition: all 0.2s ease; z-index: 2800; backdrop-filter: blur(16px); }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .badge {
+      position: fixed; left: 8px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border-radius: 999px; border: 1px solid var(--line); background: rgba(0,0,0,0.84);
+      backdrop-filter: blur(16px); color: var(--fg); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+      white-space: nowrap; box-shadow: var(--shadow); font-weight: 800; line-height: 1.2;
+    }
+    .badge.show { opacity: 1; }
+    .mobile-hamburger { display: none; }
+    .mobile-menu {
+      position: fixed; top: 0; right: -100%; width: min(84vw, 320px); height: 100vh; background: rgba(0,0,0,0.96);
+      backdrop-filter: blur(20px); z-index: 3000; transition: right 0.25s ease; border-left: 1px solid var(--line); padding: 18px 14px; overflow: auto;
+    }
+    .mobile-menu.open { right: 0; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 2900; }
+    .overlay.show { display: block; }
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .mobile-hamburger { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+      .inner { padding: 12px 14px; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .products-grid { grid-template-columns: 1fr; }
+      .product-card { min-height: auto; flex-direction: row; align-items: center; gap: 12px; padding: 10px; }
+      .product-media { width: 86px; height: 86px; min-width: 86px; border-bottom: none; border-radius: 16px; overflow: hidden; }
+      .product-content { flex: 1; gap: 6px; }
+      .product-title, .product-price, .product-desc { justify-content: flex-start; text-align: right; min-height: auto; }
+      .order-btn { width: fit-content; padding: 8px 12px; }
+      .section-cover { height: 150px; }
+    }
+    @media (max-width: 768px) {
+      .badge {
+        left: 6px; top: 50%; padding: 8px 10px; font-size: 11px; line-height: 1.2; max-width: calc(100vw - 18px);
+        white-space: normal; border-radius: 999px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <div class="brand">
+        <div class="brand-mark"><img src="https://iili.io/qZJLzjj.md.jpg" alt="جو ستور" /></div>
+        <div class="brand-name">جو ستور</div>
+      </div>
+      <div class="nav-links" id="navLinks"></div>
+      <div class="search-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16.6 16.6 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="searchInput" type="search" placeholder="ابحث عن خدمة أو قسم..." autocomplete="off" />
+      </div>
+      <button class="mobile-hamburger" id="mobileHamburger" type="button" aria-label="فتح القائمة">☰</button>
+    </div>
+  </header>
+
+  <div class="overlay" id="overlay"></div>
+  <nav class="mobile-menu" id="mobileMenu" aria-label="القائمة الجانبية">
+    <button class="close-btn" id="closeMenuBtn" type="button" aria-label="إغلاق">✕</button>
+    <div id="mobileMenuLinks"></div>
+  </nav>
+
+  <div class="badge" id="badge">تم صنع وبرمجة هذا الموقع من تصميم يوسف الحريري</div>
+
+  <main class="container">
+    <section class="hero">
+      <h1 class="hero-title">انت هنا في مكانك الصح✨😉
+جو ستور اسرع و اضمن ستور هتشوفو وتتعامل معاه
+سرعه + امان+ جوده</h1>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon">👥️</div><div class="stat-value">+100</div><div class="stat-label">عميل سعيد</div></div>
+        <div class="stat-card"><div class="stat-icon">💲</div><div class="stat-value">85%</div><div class="stat-label">توفير في سعر</div></div>
+        <div class="stat-card"><div class="stat-icon">🎧</div><div class="stat-value">24/7</div><div class="stat-label">خدمه طوال وقت</div></div>
+      </div>
+    </section>
+    <div id="results" class="results"></div>
+    <div id="catalog"></div>
+  </main>
+
+  <button class="fab-cart" id="cartToggle" type="button" aria-label="فتح السلة">🛒</button>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="سلة المشتريات">
+    <div class="cart-title">سلة المشتريات</div>
+    <div id="cartItems"></div>
+    <div style="margin-top:10px;padding:10px;border-radius:16px;border:1px solid var(--line);font-weight:900;">الإجمالي: <span id="cartTotal">0.00</span> ج</div>
+  </aside>
+
+  <div class="modal" id="productModal" aria-hidden="true">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-top">
+        <div class="modal-title" id="modalTitle"></div>
+        <button class="close-btn" id="closeModalBtn" type="button" aria-label="إغلاق">×</button>
+      </div>
+      <div class="modal-media"><img id="modalImage" src="" alt="" /></div>
+      <div class="modal-desc" id="modalDesc"></div>
+      <div class="modal-price" id="modalPrice"></div>
+      <button class="modal-add" id="addToCartModalBtn" type="button">إضافة للسلة</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const sections = [
+      {
+        key: 'sites',
+        label: 'قسم المواقع الإلكترونية الحصري',
+        cover: 'https://i.ibb.co/hJLpBggf/Gemini-Generated-Image-6ie4c16ie4c16ie4.png',
+        products: [
+          { name: 'موقع علي مزاجكك', price: 'حسب الطلب', image: 'https://i.ibb.co/hJLpBggf/Gemini-Generated-Image-6ie4c16ie4c16ie4.png', desc: 'موقع احترافي علي مزاجكك بارخص سعر في سوق من تصميم يوسف الحريري' }
+        ]
+      },
+      {
+        key: 'ai',
+        label: 'قسم الذكاء الاصطناعي',
+        cover: 'https://business.ahram.org.eg/Media/News/2025/11/11/19_2025-638984788192968252-296.jpg',
+        products: [
+          { name: 'ChatGPT Plus (شهر)', price: '150ج', image: 'https://tafeil.net/wp-content/uploads/2025/05/chatgpt-.webp', desc: 'اشتراك ChatGPT Plus لمدة شهر' },
+          { name: 'ChatGPT Go (6-8 شهور)', price: '350ج', image: 'https://thefederal.com/h-upload/2025/10/28/572870-chat-gpt-.jpg', desc: 'اشتراك من 6 إلى 8 شهور' },
+          { name: 'Gemini (سنة)', price: '250ج', image: 'https://www.androidauthority.com/wp-content/uploads/2025/07/gemini-rainbow-star-x-logo-1000w-563h.jpg.webp', desc: 'اشتراك Gemini لمدة سنة' },
+          { name: 'رابط تفعيل جيمناي برو (18 شهر)', price: '200ج', image: 'https://www.geeky-gadgets.com/wp-content/uploads/2024/01/Google-Gemini-Pro-benchmarks.webp', desc: 'تفعيل Gemini Pro لمدة 18 شهر' }
+        ]
+      },
+      {
+        key: 'vpn',
+        label: 'قسم VPN والإنترنت',
+        cover: 'https://zoogvpn.com/wp-content/uploads/2021/12/main-for-other.png',
+        products: [
+          { name: 'HMA VPN (20-30 يوم)', price: '70ج', image: 'https://getnhanh.net/wp-content/uploads/2022/08/Key_Phan_Mem_HMA_VPN.jpg', desc: 'HMA VPN لمدة 20–30 يوم' },
+          { name: 'حساب Express VPN (شهر)', price: '70ج', image: 'https://www.apkmirror.com/wp-content/themes/APKMirror/ap_resize/ap_resize.php?src=https%3A%2F%2Fdownloadr2.apkmirror.com%2Fwp-content%2Fuploads%2F2023%2F10%2F76%2F65376437cf3d3_com.expressvpn.vpn.png&w=384&h=384&q=100', desc: 'Express VPN شهر' },
+          { name: 'كونفج نت لو الروتر خلصان', price: '20 ج', image: 'https://image-eo.winudf.com/v2/image/Y29tLmNvbmZpZy5mcmVlbmV0LmZyZWV6YWdfaWNvbl8xNTEwMjIzMDE1XzA2OA/icon.webp?w=280&fakeurl=1&type=.webp', desc: 'إعداد/كونفج نت عند نفاذ الباقة' },
+          { name: 'شحن رصيد جميع الشبكات', price: 'عند الطلب', image: 'https://media.elbalad.news/ArticleUpload/2025/11/15/543_642_024304_687_034954.jpg', desc: 'سعر عند الطلب' },
+          { name: 'شحن نت رواتر', price: 'عند الطلب', image: 'https://media.elbalad.news/ArticleUpload/2025/11/15/543_642_024304_687_034954.jpg', desc: 'سعر عند الطلب' },
+          { name: 'تفعيل باقات اتصالات و فودافون', price: 'عند الطلب', image: 'https://www.awanmasr.com/wp-content/webp-express/webp-images/uploads/2023/02/Think-Marketing-ArticleVodafone-Egypt-Etisalat-Misr-Sign-4G-License-Deals-750x375.png.webp', desc: 'سعر عند الطلب' }
+        ]
+      },
+      {
+        key: 'subs',
+        label: 'قسم الاشتراكات والبرامج',
+        cover: 'https://io.hsoubcdn.com/images/external/i.suar.me/036452bc9a5f28b6c9c3ff0e56830a5a.jpeg',
+        products: [
+          { name: 'اشتراك كانفا برو سنه', price: '60ج', image: 'https://digital-plus3.com/cdn/shop/articles/52173D1D-1A88-4C3A-90CB-F5B043F3F534-444648_520x500_9b1c0698-697b-4ad1-8773-1c09777438af.jpg?v=1771444766', desc: 'اشتراك Canva Pro لمدة سنة' },
+          { name: 'اشتراك كانفا برو ٣ سنين', price: '100ج', image: 'https://digital-plus3.com/cdn/shop/articles/52173D1D-1A88-4C3A-90CB-F5B043F3F534-444648_520x500_9b1c0698-697b-4ad1-8773-1c09777438af.jpg?v=1771444766', desc: 'اشتراك Canva Pro لمدة 3 سنوات' },
+          { name: 'اشتراك كانفا برو بلس سنه', price: '145ج', image: 'https://digital-plus3.com/cdn/shop/articles/52173D1D-1A88-4C3A-90CB-F5B043F3F534-444648_520x500_9b1c0698-697b-4ad1-8773-1c09777438af.jpg?v=1771444766', desc: 'اشتراك Canva Pro Plus لمدة سنة' },
+          { name: 'كاب كات برو 7 ايام', price: '50ج', image: 'https://cdn.salla.sa/pQmgPB/XoL97D6TRZALFQp1n0CNuR12CM5NTT56XbXbHFzQ.jpg', desc: 'CapCut Pro لمدة 7 أيام' },
+          { name: 'كاب كات برو شهر', price: '190ج', image: 'https://cdn.salla.sa/pQmgPB/XoL97D6TRZALFQp1n0CNuR12CM5NTT56XbXbHFzQ.jpg', desc: 'CapCut Pro لمدة شهر' }
+        ]
+      },
+      {
+        key: 'marketing',
+        label: 'قسم التسويق والإعلانات والتوثيق',
+        cover: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ81ee2LewHDDfqSOmRjPB32uABS7xigVglCAbELuJC3BKxkLIaxnaxK9k&s=10',
+        products: [
+          { name: 'اعلانات مموله اعلا نتائج', price: 'حسب الطلب', image: 'https://img.parlmany.com/large/202311210328342834.jpg', desc: 'حسب الطلب' },
+          { name: 'شير في جروب كوره ريتش عالي', price: '٣٠ج', image: 'https://i.ibb.co/zW5GGYBq/Screenshot-Whats-App.png', desc: 'شير في جروب كورة ريتش عالي' },
+          { name: 'اعلانات لاصحاب المشاريع البسيطه / الصغيره', price: 'حسب الطلب', image: 'https://blog.khamsat.com/wp-content/uploads/2022/03/%D8%A3%D9%86%D9%88%D8%A7%D8%B9-%D8%A7%D9%84%D8%A5%D8%B9%D9%84%D8%A7%D9%86%D8%A7%D8%AA.png', desc: 'حسب الطلب' },
+          { name: 'توثيق فيس بوك شهر', price: '٢٦٠ج', image: 'https://www.annajah.net/resources/thumbs/article_photos/article-h4KWpskO3Maw.jpg_729x410.jpg', desc: 'توثيق فيس بوك شهر' },
+          { name: 'توثيق انستجرام شهر', price: '260ج', image: 'https://taqnia.qa/wp-content/uploads/2022/04/insta_nih0z0u.jpg.webp', desc: 'توثيق انستجرام شهر' },
+          { name: 'توثيق واتساب شهر', price: 'سعر متغير', image: 'https://blog.taqnyat.sa/assets/images/img-post/a-verified-whatsapp-business-account-with-blue-tick.jpg', desc: 'سعر متغير' },
+          { name: 'توثيق تيليجرام', price: 'حسب الطلب', image: 'https://i.ytimg.com/vi/XFBoqYGlGm4/sddefault.jpg', desc: 'حسب الطلب' }
+        ]
+      },
+      {
+        key: 'accounts',
+        label: 'قسم الحسابات والأرقام',
+        cover: 'https://www.4jawaly.com/wp-content/uploads/2026/05/best-sms-sending-website-inline-1-1.webp',
+        products: [
+          { name: 'حسابات outlook جاهز', price: '4ج', image: 'https://pbs.twimg.com/profile_images/1973454025598423040/fIFOu08p_400x400.jpg', desc: 'حسابات outlook جاهز' },
+          { name: 'ارقام واتساب جميع الدول', price: 'حسب الطلب', image: 'https://assets-news.asharq.com/images/articles/original/993cd100-9539-4416-9df3-c6056cfeffe7.jpg', desc: 'ارقام واتساب جميع الدول' },
+          { name: 'ارقام تيليجرام جميع دول العالم', price: 'حسب الطلب', image: 'https://vstatic.vietnam.vn/vietnam/resource/IMAGE/2025/1/19/7f5f340973804134b95fe0364f0a308c', desc: 'ارقام تيليجرام جميع دول العالم' }
+        ]
+      },
+      {
+        key: 'games',
+        label: 'قسم الألعاب',
+        cover: 'https://cdn.al-ain.com/images/2021/11/11/143-101756-5-golden-tips-beginners-world-electronic-games_700x400.jpg',
+        products: [
+          { name: 'شحن شدات ببجي', price: 'حسب الطلب', image: 'https://cdn.salla.sa/ZAPgB/55e3cde0-cf5e-4196-8991-afafbb9b8460-1000x600-I53Y0oOGLliic7KG9ipFhVANiOC85kxujDW5vjX0.jpg', desc: 'حسب الطلب' },
+          { name: 'شحن جواهر فري فاير', price: 'حسب الطلب', image: 'https://media.elwatannews.com/media/img/mediaarc/medium/11874752351736854427.jpg', desc: 'حسب الطلب' }
+        ]
+      },
+      {
+        key: 'services',
+        label: 'قسم الخدمات الرقمية',
+        cover: 'https://tabayu.com/up_image/b5ccad1dd82014960a081088e7d3fc9b_Store_Logo.png',
+        products: [
+          { name: 'مونتاج فيديو احترافي', price: 'عند الطلب', image: 'https://ijnet.org/sites/default/files/styles/full_width_node/public/story/2022-03/Untitled_3.jpg?h=ac68f3d0&itok=WEu4PJNj', desc: 'سعر عند الطلب' },
+          { name: 'تصميم صور احترافية', price: 'عند الطلب', image: 'https://creativeschoolarabia.com/wp-content/uploads/2019/05/video-editing-video-editor-app-2019-creative-school-arabia-%D9%85%D9%88%D9%86%D8%AA%D8%A7%D8%AC-%D9%81%D9%8A%D8%AF%D9%8A%D9%88-%D9%85%D9%88%D9%86%D8%AA%D9%8A%D8%B1-%D8%A8%D8%B1%D8%A7%D9%85%D8%AC-%D8%A7%D9%81%D8%B6%D9%84-%D8%A8%D8%B1%D8%A7%D9%85%D8%AC-%D9%85%D9%88%D9%86%D8%AA%D8%A7%D8%AC-%D8%A7%D9%84%D9%81%D9%8A%D8%AF%D9%8A%D9%88-%D9%84%D8%B9%D8%A7%D9%85-20198.jpg', desc: 'سعر عند الطلب' },
+          { name: 'جروبات فيس بوك من الف لحد ٥٠٠ الف متابع', price: 'عند الطلب', image: 'https://images.unsplash.com/photo-1684577088722-d46fd87aaa09?q=80&w=1160', desc: 'سعر عند الطلب' },
+          { name: 'حسابات فيس بوك من الف لحد مليون متابع', price: 'عند الطلب', image: 'https://images.unsplash.com/photo-1684577088722-d46fd87aaa09?q=80&w=1160', desc: 'سعر عند الطلب' },
+          { name: 'حسابات تيك توك الف لحد مليون متابع', price: 'عند الطلب', image: 'https://images.unsplash.com/photo-1642310290702-c232e4e8579a?w=1200', desc: 'سعر عند الطلب' }
+        ]
+      },
+      {
+        key: 'facebook',
+        label: 'قسم فيسبوك',
+        cover: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Facebook_f_logo_%282019%29.svg/1280px-Facebook_f_logo_%282019%29.svg.png',
+        products: [
+          { name: '1000 متابع', price: '18ج', image: 'https://static.vecteezy.com/system/resources/thumbnails/011/168/665/small_2x/follow-icon-illustration-vector.jpg', desc: 'متابعين فيسبوك' },
+          { name: '1000 لايك مصريين', price: '110ج', image: 'https://plus.unsplash.com/premium_photo-1684979565440-55a1c48ccecf?q=80&w=1112', desc: 'لايكات فيسبوك' },
+          { name: '1000 مشاهدة', price: '6ج', image: 'https://www.buytiktokfollowers.co.uk/wp-content/uploads/2022/08/views-10k.jpg', desc: 'مشاهدات فيسبوك' },
+          { name: '1000 رياكت اجنبي', price: '٢٥ج', image: 'https://plus.unsplash.com/premium_photo-1684979565440-55a1c48ccecf?q=80&w=1112', desc: 'رياكتات فيسبوك' },
+          { name: '1000 تعليق مخفيين', price: '٤٠ج', image: 'https://cdn-icons-png.flaticon.com/512/2593/2593482.png', desc: 'تعليقات مخفية فيسبوك' },
+          { name: '1000 شير', price: '10ج', image: 'https://www.clipartmax.com/png/middle/456-4562806_share-post-share-icon-free-download.png', desc: 'شير فيسبوك' },
+          { name: 'الف مشاهده قصص و تفاعل', price: '٢٥ج', image: 'https://www.buytiktokfollowers.co.uk/wp-content/uploads/2022/08/views-10k.jpg', desc: 'مشاهدات قصص وتفاعل' }
+        ]
+      },
+      {
+        key: 'tiktok',
+        label: 'قسم تيك توك',
+        cover: 'https://img.magnific.com/premium-vector/tik-tok-logo_578229-290.jpg?semt=ais_hybrid&w=740&q=80',
+        products: [
+          { name: '1000 متابع بضمان', price: '١٤٠ج', image: 'https://static.vecteezy.com/system/resources/thumbnails/011/168/665/small_2x/follow-icon-illustration-vector.jpg', desc: 'متابعين تيك توك بضمان' },
+          { name: '1000 متابع', price: '١١٠ج', image: 'https://static.vecteezy.com/system/resources/thumbnails/011/168/665/small_2x/follow-icon-illustration-vector.jpg', desc: 'متابعين تيك توك' },
+          { name: '1000 لايك', price: '١٠ج', image: 'https://plus.unsplash.com/premium_photo-1684979565440-55a1c48ccecf?q=80&w=1112', desc: 'لايكات تيك توك' },
+          { name: '1000 حفظ فيديو (Save)', price: '١٠ج', image: 'https://img.freepik.com/premium-vector/bookmark-icon-save-sign-vector_1254296-2629.jpg', desc: 'حفظ فيديو تيك توك' },
+          { name: '1000 تعليق', price: '١٤٥ج', image: 'https://cdn-icons-png.flaticon.com/512/2593/2593482.png', desc: 'تعليقات تيك توك' },
+          { name: '1000 مشاهدة', price: '٢.٥ج', image: 'https://www.buytiktokfollowers.co.uk/wp-content/uploads/2022/08/views-10k.jpg', desc: 'مشاهدات تيك توك' }
+        ]
+      },
+      {
+        key: 'instagram',
+        label: 'قسم إنستجرام',
+        cover: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png',
+        products: [
+          { name: '1000 متابع حقيقيين', price: '٣٩ج', image: 'https://static.vecteezy.com/system/resources/thumbnails/011/168/665/small_2x/follow-icon-illustration-vector.jpg', desc: 'متابعين إنستجرام حقيقيين' },
+          { name: '1000 لايك حقيقي', price: '١٦ج', image: 'https://plus.unsplash.com/premium_photo-1684979565440-55a1c48ccecf?q=80&w=1112', desc: 'لايكات إنستجرام حقيقية' },
+          { name: '1000 مشاهدة', price: '١ج', image: 'https://www.buytiktokfollowers.co.uk/wp-content/uploads/2022/08/views-10k.jpg', desc: 'مشاهدات إنستجرام' }
+        ]
+      },
+      {
+        key: 'youtube',
+        label: 'قسم يوتيوب',
+        cover: 'https://syria.news/images/2019_04/2019_04_07/09a47bbb-07041912_m2.jpg',
+        products: [
+          { name: 'الف مشاهده حقيقيه من الاقتراح', price: '١٢٠ج', image: 'https://www.buytiktokfollowers.co.uk/wp-content/uploads/2022/08/views-10k.jpg', desc: 'مشاهدات يوتيوب' },
+          { name: 'الف لايك يوتيوب شبه حقيقه', price: '١٠ج', image: 'https://plus.unsplash.com/premium_photo-1684979565440-55a1c48ccecf?q=80&w=1112', desc: 'لايكات يوتيوب' },
+          { name: '١٠٠ تعليق من ذكاء اصطناعي', price: '٣٠ج', image: 'https://cdn-icons-png.flaticon.com/512/2593/2593482.png', desc: 'تعليقات يوتيوب' }
+        ]
+      }
+    ];
+
+    const catalogEl = document.getElementById('catalog');
+    const navLinksEl = document.getElementById('navLinks');
+    const mobileMenuLinksEl = document.getElementById('mobileMenuLinks');
+    const searchInput = document.getElementById('searchInput');
+    const resultsEl = document.getElementById('results');
+    const cartToggle = document.getElementById('cartToggle');
+    const cartDrawer = document.getElementById('cartDrawer');
+    const cartItemsEl = document.getElementById('cartItems');
+    const cartTotalEl = document.getElementById('cartTotal');
+    const modal = document.getElementById('productModal');
+    const modalTitleEl = document.getElementById('modalTitle');
+    const modalImageEl = document.getElementById('modalImage');
+    const modalDescEl = document.getElementById('modalDesc');
+    const modalPriceEl = document.getElementById('modalPrice');
+    const addToCartModalBtn = document.getElementById('addToCartModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const toastEl = document.getElementById('toast');
+    const badgeEl = document.getElementById('badge');
+    const mobileHamburger = document.getElementById('mobileHamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const overlay = document.getElementById('overlay');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+
+    let activeFilter = null;
+    let cart = [];
+    const siteProductName = 'موقع علي مزاجكك';
+    const siteCheckoutUrl = 'https://wa.me/201023596553';
+    const storeCheckoutUrl = 'https://wa.me/201224438892';
+
+    function escapeHtml(text) {
+      return String(text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+    function normalize(value) {
+      return String(value || '').toLowerCase().trim();
+    }
+    function toArabicNumber(value) {
+      return String(value).replace(/0/g, '٠').replace(/1/g, '١').replace(/2/g, '٢').replace(/3/g, '٣').replace(/4/g, '٤').replace(/5/g, '٥').replace(/6/g, '٦').replace(/7/g, '٧').replace(/8/g, '٨').replace(/9/g, '٩');
+    }
+    function parsePrice(value) {
+      const raw = String(value || '').trim();
+      if (!raw || /حسب|عند/i.test(raw)) return 0;
+      const normalized = raw.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/,/g, '').replace(/ج/g, '').replace(/٫/g, '.').replace(/٬/g, '');
+      const match = normalized.match(/(-?\d+(?:\.\d+)?)/);
+      return match ? parseFloat(match[1]) : 0;
+    }
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), 2400);
+    }
+    function openModal(product) {
+      modalTitleEl.textContent = product.name;
+      modalImageEl.src = product.image;
+      modalImageEl.alt = product.name;
+      modalDescEl.textContent = product.desc || product.name;
+      modalPriceEl.textContent = parsePrice(product.price) === 0 ? 'سعر عند الطلب' : product.price;
+      addToCartModalBtn.onclick = () => addToCart(product);
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+    function openCart() { cartDrawer.classList.add('open'); }
+    function closeCart() { cartDrawer.classList.remove('open'); }
+    function openMenu() { mobileMenu.classList.add('open'); overlay.classList.add('show'); }
+    function closeMenu() { mobileMenu.classList.remove('open'); overlay.classList.remove('show'); }
+
+    function addToCart(product) {
+      const site = product.name === siteProductName;
+      const existing = cart.find(item => item.name === product.name && item.isSite === site);
+      if (existing) existing.quantity += 1;
+      else cart.push({ name: product.name, price: product.price, priceNumber: parsePrice(product.price), quantity: 1, isSite: site });
+      renderCart();
+      closeModal();
+      showToast('تمت إضافة الخدمة للسلة ✓');
+    }
+    function buildOrderMessage(items) {
+      let message = 'طلب جديد من جو ستور:\n\n';
+      items.forEach(item => {
+        const unit = item.priceNumber === 0 ? 'حسب الطلب' : item.priceNumber.toFixed(2).replace(/\.00$/, '') + 'ج';
+        message += '- ' + item.name + ' × ' + item.quantity + ' — ' + unit + '\n';
+      });
+      return message;
+    }
+    function sendOrder(mode) {
+      const siteItems = cart.filter(item => item.isSite);
+      const serviceItems = cart.filter(item => !item.isSite);
+      const items = mode === 'site' ? siteItems : serviceItems;
+      if (!items.length) {
+        showToast('لا توجد عناصر لطلبها');
+        return;
+      }
+      const url = mode === 'site' ? siteCheckoutUrl : storeCheckoutUrl;
+      window.open(url + '?text=' + encodeURIComponent(buildOrderMessage(items)), '_blank');
+      if (mode === 'site') cart = cart.filter(item => !item.isSite);
+      else cart = cart.filter(item => item.isSite);
+      renderCart();
+      showToast('تم إرسال الطلب للواتساب');
+    }
+    function renderCart() {
+      if (!cart.length) {
+        cartItemsEl.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.74);padding:12px 0;">السلة فارغة</div>';
+        cartTotalEl.textContent = '0.00';
+        return;
+      }
+      const siteItems = cart.filter(item => item.isSite);
+      const serviceItems = cart.filter(item => !item.isSite);
+      let total = 0;
+      cart.forEach(item => { if (item.priceNumber !== 0) total += item.priceNumber * item.quantity; });
+      const groups = [];
+      if (siteItems.length) groups.push(renderCartGroup('خدمة الموقع', siteItems, 'site'));
+      if (serviceItems.length) groups.push(renderCartGroup('الخدمات الأخرى', serviceItems, 'services'));
+      cartItemsEl.innerHTML = groups.join('');
+      cartTotalEl.textContent = toArabicNumber(total.toFixed(2));
+
+      cartItemsEl.querySelectorAll('[data-action]').forEach(button => button.addEventListener('click', () => sendOrder(button.getAttribute('data-action'))));
+      cartItemsEl.querySelectorAll('[data-qty]').forEach(button => {
+        button.addEventListener('click', () => {
+          const group = button.getAttribute('data-group');
+          const index = Number(button.getAttribute('data-qty'));
+          const items = group === 'site' ? cart.filter(item => item.isSite) : cart.filter(item => !item.isSite);
+          const target = items[index];
+          if (!target) return;
+          const original = cart.find(item => item.name === target.name && item.isSite === target.isSite);
+          if (!original) return;
+          const delta = button.textContent === '−' ? -1 : 1;
+          original.quantity += delta;
+          if (original.quantity < 1) cart = cart.filter(item => !(item.name === original.name && item.isSite === original.isSite));
+          renderCart();
+        });
+      });
+      cartItemsEl.querySelectorAll('[data-remove]').forEach(button => {
+        button.addEventListener('click', () => {
+          const group = button.getAttribute('data-group');
+          const index = Number(button.getAttribute('data-remove'));
+          const items = group === 'site' ? cart.filter(item => item.isSite) : cart.filter(item => !item.isSite);
+          const target = items[index];
+          if (!target) return;
+          cart = cart.filter(item => !(item.name === target.name && item.isSite === target.isSite));
+          renderCart();
+        });
+      });
+    }
+    function renderCartGroup(title, items, mode) {
+      let total = 0;
+      const rows = items.map((item, index) => {
+        const linePrice = item.priceNumber === 0 ? 'حسب الطلب' : toArabicNumber((item.priceNumber * item.quantity).toFixed(2)) + 'ج';
+        if (item.priceNumber !== 0) total += item.priceNumber * item.quantity;
+        return '<div class="cart-item"><div><div class="cart-name">' + escapeHtml(item.name) + '</div><div class="cart-meta">' + escapeHtml(linePrice) + ' • العدد: ' + item.quantity + '</div></div><div><div class="qty-controls"><button class="qty-btn" type="button" data-qty="' + index + '" data-group="' + mode + '">−</button><span style="min-width:20px;text-align:center;font-weight:900;">' + item.quantity + '</span><button class="qty-btn" type="button" data-qty="' + index + '" data-group="' + mode + '">+</button></div><div style="height:8px;"></div><button class="remove-btn" type="button" data-remove="' + index + '" data-group="' + mode + '">حذف</button></div></div>';
+      }).join('');
+      const buttonText = mode === 'site' ? 'إتمام طلب الموقع' : 'إتمام طلب الخدمات';
+      return '<div class="cart-group"><div style="font-weight:900;margin-bottom:8px;">' + escapeHtml(title) + '</div>' + rows + '<div style="font-weight:800;color:rgba(255,255,255,0.8);margin-top:8px;">الإجمالي: ' + (total === 0 ? 'حسب الطلب' : toArabicNumber(total.toFixed(2)) + 'ج') + '</div><button class="checkout-btn" type="button" data-action="' + mode + '">' + buttonText + '</button></div>';
+    }
+    function matchesFilter(product, query) {
+      if (!query) return true;
+      return normalize(product.name).includes(query) || normalize(product.desc).includes(query);
+    }
+    function renderCatalog() {
+      const query = normalize(searchInput.value);
+      const visibleSections = sections.filter(section => (activeFilter ? section.key === activeFilter : true)).filter(section => section.products.some(product => matchesFilter(product, query)));
+      if (!visibleSections.length) {
+        catalogEl.innerHTML = '<div class="section-block"><div class="section-body"><div style="text-align:center;font-weight:900;color:rgba(255,255,255,0.8);">لا توجد نتائج مطابقة لبحثك</div></div></div>';
+        resultsEl.style.display = 'block';
+        resultsEl.textContent = 'لا توجد نتائج مطابقة لبحثك';
+        setupBadgeObserver();
+        return;
+      }
+      resultsEl.style.display = 'none';
+      catalogEl.innerHTML = visibleSections.map(section => {
+        const cards = section.products.filter(product => matchesFilter(product, query)).map(product => `
+          <article class="product-card">
+            <div class="product-media"><img src="${product.image}" alt="${escapeHtml(product.name)}" /></div>
+            <div class="product-content">
+              <div class="product-title">${escapeHtml(product.name)}</div>
+              <div class="product-price">${escapeHtml(product.price)}</div>
+              <div class="product-desc">${escapeHtml(product.desc || '')}</div>
+              <button class="order-btn" type="button" data-product-name="${escapeHtml(product.name)}">اطلب الآن</button>
+            </div>
+          </article>`).join('');
+        return `<section class="section-block" id="section-${section.key}" data-section="${section.key}"><div class="section-cover"><img src="${section.cover}" alt="${escapeHtml(section.label)}" /></div><div class="section-body"><div class="section-title">${escapeHtml(section.label)}</div><div class="products-grid">${cards}</div></div></section>`;
+      }).join('');
+
+      catalogEl.querySelectorAll('.order-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const name = button.getAttribute('data-product-name');
+          const section = visibleSections.find(item => item.products.some(p => p.name === name));
+          const product = section && section.products.find(p => p.name === name);
+          if (product) openModal(product);
+        });
+      });
+      setupBadgeObserver();
+    }
+    function buildNavButtons() {
+      const scrollToSection = (key) => {
+        const catalogSection = document.getElementById('catalog');
+
+        if (catalogSection) catalogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (!key) return;
+        setTimeout(() => {
+          const el = document.getElementById('section-' + key);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 40);
+      };
+
+      const buttons = [
+        { key: null, label: 'الكل' },
+        { key: 'sites', label: 'المواقع' },
+        { key: 'ai', label: 'الذكاء الاصطناعي' },
+        { key: 'vpn', label: 'VPN والإنترنت' },
+        { key: 'subs', label: 'الاشتراكات والبرامج' },
+        { key: 'marketing', label: 'التسويق والإعلانات' },
+        { key: 'accounts', label: 'الحسابات والأرقام' },
+        { key: 'games', label: 'الألعاب' },
+        { key: 'services', label: 'الخدمات الرقمية' },
+        { key: 'facebook', label: 'فيسبوك' },
+        { key: 'tiktok', label: 'تيك توك' },
+        { key: 'instagram', label: 'إنستجرام' },
+        { key: 'youtube', label: 'يوتيوب' }
+      ];
+
+
+
+      navLinksEl.innerHTML = buttons.map(btn => `<button class="nav-btn ${activeFilter === btn.key ? 'active' : ''}" data-filter="${btn.key || ''}">${escapeHtml(btn.label)}</button>`).join('');
+      mobileMenuLinksEl.innerHTML = buttons.map(btn => `<button class="menu-link" data-filter="${btn.key || ''}">${escapeHtml(btn.label)}</button>`).join('');
+
+      document.querySelectorAll('.nav-btn').forEach(button => button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const key = button.getAttribute('data-filter') || '';
+        activeFilter = key || null;
+        buildNavButtons();
+        renderCatalog();
+        closeMenu();
+        // Force hide badge immediately when leaving Sites
+        if (activeFilter !== 'sites') badgeEl.classList.remove('show');
+        scrollToSection(activeFilter);
+      }, { passive: false }));
+
+
+      document.querySelectorAll('.menu-link').forEach(button => button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const key = button.getAttribute('data-filter') || '';
+        activeFilter = key || null;
+        closeMenu();
+        buildNavButtons();
+        renderCatalog();
+        // Force hide badge immediately on any navigation click
+        if (activeFilter !== 'sites') badgeEl.classList.remove('show');
+        scrollToSection(activeFilter);
+      }, { passive: false }));
+
+    }
+
+    searchInput.addEventListener('input', renderCatalog);
+    cartToggle.addEventListener('click', () => cartDrawer.classList.contains('open') ? closeCart() : openCart());
+    modal.addEventListener('click', closeModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    mobileHamburger.addEventListener('click', openMenu);
+    closeMenuBtn.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        closeModal();
+        closeCart();
+        closeMenu();
+      }
+    });
+
+    let badgeObserver = null;
+
+    function setupBadgeObserver() {
+      if (badgeObserver) badgeObserver.disconnect();
+      const websitesSectionEl = document.getElementById('section-sites');
+      if (!websitesSectionEl) return;
+
+      // Crucial Badge Freeze Fix: high precision + immediate class remove
+      badgeObserver = new IntersectionObserver(entries => {
+        const entry = entries[0];
+        if (!entry) return;
+        if (entry.isIntersecting) badgeEl.classList.add('show');
+        else badgeEl.classList.remove('show');
+      }, { threshold: 0.1 });
+
+      badgeObserver.observe(websitesSectionEl);
+    }
+
+
+
+    buildNavButtons();
+    renderCatalog();
+  </script>
+</body>
+</html>
